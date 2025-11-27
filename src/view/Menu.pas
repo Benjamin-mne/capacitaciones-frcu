@@ -1,7 +1,9 @@
 unit Menu;
 
 interface
-    procedure MenuPrincipal();
+    uses AVL;
+
+    procedure MenuPrincipal(var alumnos_avl: PUNT_NODO);
     procedure Listados();
     procedure Estadistica();
 
@@ -19,7 +21,7 @@ implementation
         Writeln('TODO: Estadistica..');
     end;
 
-    procedure MenuPrincipal();
+    procedure MenuPrincipal(var alumnos_avl: PUNT_NODO);
         var 
             opciones : V_Opciones;
             tecla, op: integer;
@@ -59,7 +61,7 @@ implementation
                             1: 
                             begin 
                                 Clrscr; 
-                                MenuAlumnos();
+                                MenuAlumnos(alumnos_avl);
                             end; 
                             2: 
                             begin 

@@ -3,7 +3,7 @@ unit AVL;
 interface 
     type 
         T_DATO = record
-            id: integer;
+            id: string;
             pos_arch: integer; 
         end;
 
@@ -24,10 +24,32 @@ interface
         function INSERTAR(N: PUNT_NODO; X: T_DATO): PUNT_NODO; // Función recursiva para insertar info en el subárbol con raíz en el nodo y devuelve la nueva raíz del subárbol.
         function MINIMO(N: PUNT_NODO): PUNT_NODO; // Función que devuelve el nodo con el id mínimo encontrado
         function ELIMINAR(N: PUNT_NODO; X: T_DATO): PUNT_NODO; // Función recursiva para eliminar un nodo dada la info en un subárbol con la raíz dada y devuelve la raíz del subárbol modificado.
-        function BUSCAR(N: PUNT_NODO; id: integer): PUNT_NODO; // Función para buscar nodo por id, retorna nil si no existe
+        function BUSCAR(N: PUNT_NODO; id: string): PUNT_NODO; // Función para buscar nodo por id, retorna nil si no existe
+        function ES_MENOR(a, b: string): boolean;
+        function ES_MAYOR(a, b: string): boolean;
 
 implementation
-        uses Math;
+        uses Math, SysUtils;
+
+        function ES_MENOR(a, b: string): boolean;
+        var
+            ai, bi: longint;
+        begin
+            if TryStrToInt(a, ai) and TryStrToInt(b, bi) then
+                ES_MENOR := ai < bi
+            else
+                ES_MENOR := a < b;
+        end;
+
+        function ES_MAYOR(a, b: string): boolean;
+        var
+            ai, bi: longint;
+        begin
+            if TryStrToInt(a, ai) and TryStrToInt(b, bi) then
+                ES_MAYOR := ai > bi
+            else
+                ES_MAYOR := a > b;
+        end;
 
         function ALTURA(N: PUNT_NODO): integer;
         begin
@@ -103,7 +125,7 @@ implementation
                 N := CREAR_NODO(X);
                 res:= N;
             end
-            else if (X.id < N^.info.id) then 
+            else if ES_MENOR(X.id, N^.info.id) then 
                 N^.sai:= INSERTAR(N^.sai, X)
             else
                 N^.sad:= INSERTAR(N^.sad, X);
@@ -121,22 +143,22 @@ implementation
                 { Si este nodo esta DESEQUILIBRADO, entonces hay 4 casos: }
 
                 // Caso: Izquierda-Izquierda
-                if (balance > 1) AND (N^.sai <> nil) AND (X.id < N^.sai^.info.id) then 
+                if (balance > 1) AND (N^.sai <> nil) AND ES_MENOR(X.id, N^.sai^.info.id) then 
                     res:= ROTACION_DERECHA(N);
 
                 // Caso: Derecha-Derecha
-                if (balance < -1) AND (N^.sad <> nil) AND (X.id > N^.sad^.info.id) then 
+                if (balance < -1) AND (N^.sad <> nil) AND ES_MAYOR(X.id, N^.sad^.info.id) then 
                     res:= ROTACION_IZQUIERDA(N);
 
                 // Caso: Izquierda-Derecha
-                if (balance > 1) AND (N^.sai <> nil) AND (X.id > N^.sai^.info.id) then 
+                if (balance > 1) AND (N^.sai <> nil) AND ES_MAYOR(X.id, N^.sai^.info.id) then 
                 begin
                     N^.sai:= ROTACION_IZQUIERDA(N^.sai);
                     res:= ROTACION_DERECHA(N);
                 end;
 
                 // Caso: Derecha-Izquierda
-                if (balance < -1) AND (N^.sad <> nil) AND (X.id < N^.sad^.info.id) then 
+                if (balance < -1) AND (N^.sad <> nil) AND ES_MENOR(X.id, N^.sad^.info.id) then 
                 begin
                     N^.sad:= ROTACION_DERECHA(N^.sad);
                     res:= ROTACION_IZQUIERDA(N);
@@ -168,9 +190,9 @@ implementation
 
             if (N <> nil) then
             begin
-                if (X.id < N^.info.id) then
+                if ES_MENOR(X.id, N^.info.id) then
                     N^.sai:= ELIMINAR(N^.sai, X)
-                else if (X.id > N^.info.id) then
+                else if ES_MAYOR(X.id, N^.info.id) then
                     N^.sad:= ELIMINAR(N^.sad, X)
                 else
                 begin
@@ -255,13 +277,13 @@ implementation
             ELIMINAR:= res;
         end;
 
-        function BUSCAR(N: PUNT_NODO; id: integer): PUNT_NODO;
+        function BUSCAR(N: PUNT_NODO; id: string): PUNT_NODO;
         begin
             if (N = nil) then
                 BUSCAR:= nil
             else if (id = N^.info.id) then
                 BUSCAR:= N
-            else if (id < N^.info.id) then
+            else if ES_MENOR(id, N^.info.id) then
                 BUSCAR:= BUSCAR(N^.sai, id)
             else
                 BUSCAR:= BUSCAR(N^.sad, id);
