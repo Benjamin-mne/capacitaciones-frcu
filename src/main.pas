@@ -1,38 +1,39 @@
 program main; 
 
 uses
-    AVL, DAOAlumno, Menu, crt;
-    
-{
-procedure PRE_ORDEN(raiz: PUNT_NODO);
-begin
-    if raiz <> nil then
-    begin
-        Writeln('ID: ', raiz^.info.id, '  Pos: ', raiz^.info.pos_arch);
-        PRE_ORDEN(raiz^.sai);
-        PRE_ORDEN(raiz^.sad);
-    end;
-end;
+    //AVL, 
+    Contexto, Menu, 
+    crt;
 
-procedure INORDEN(raiz: PUNT_NODO);
-begin
-    if raiz <> nil then
+{
+    procedure INORDEN(raiz: PUNT_NODO);
     begin
-        INORDEN(raiz^.sai);
-        Writeln('ID: ', raiz^.info.id, '  Pos: ', raiz^.info.pos_arch);
-        INORDEN(raiz^.sad);
+        if raiz <> nil then
+        begin
+            INORDEN(raiz^.sai);
+            Writeln('ID: ', raiz^.info.id, '  Pos: ', raiz^.info.pos_arch);
+            INORDEN(raiz^.sad);
+        end;
     end;
-end;
+
+    procedure PRE_ORDEN(raiz: PUNT_NODO);
+    begin
+        if raiz <> nil then
+        begin
+            Writeln('ID: ', raiz^.info.id, '  Pos: ', raiz^.info.pos_arch);
+            PRE_ORDEN(raiz^.sai);
+            PRE_ORDEN(raiz^.sad);
+        end;
+    end;
 }
 
-var 
-    alumnos_avl: PUNT_NODO;
+var ctx : T_CONTEXTO;
     
 begin
     Clrscr;
-    alumnos_avl:= nil;
-    CargarAlumnosAVL(alumnos_avl);
-    MenuPrincipal(alumnos_avl);
-    //INORDEN(alumnos_avl);
+    INIT_CTX(ctx);
+    MenuPrincipal(ctx);
+    
+    //INORDEN(ctx.alumnos.nombre);
 end.
 

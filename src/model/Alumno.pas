@@ -11,6 +11,14 @@ interface
             activo: boolean;
         end;
 
+        {
+            E_CAMPOS_ALUMNO se usa principalmente como parámetro del procedimiento 
+            CargarAlumnosAVL(unit DAOAlumno) por cual ca (campo de alumno) debe armar 
+            el arbol.
+        }
+
+        E_CAMPOS_ALUMNO = (ca_dni, ca_nombre, ca_apellido, ca_fecha_nacimiento, docente_utn, activo);
+
         PUNT_ITEM = ^ITEM_LISTA;
 
         ITEM_LISTA = record 

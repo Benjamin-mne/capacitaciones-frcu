@@ -67,6 +67,14 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "=============== CONTEXTO ==============="
+echo "Compilando Contexto.pas..."
+fpc src/context/Contexto.pas -FUbin
+if [ $? -ne 0 ]; then
+    echo "ERROR al compilar AlumnosView.pas"
+    exit 1
+fi
+
 echo "============ CONTROLLER ============"
 echo "Compilando ControllerAlumno.pas..."
 fpc src/controller/ControllerAlumno.pas -FUbin

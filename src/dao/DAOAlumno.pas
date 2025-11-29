@@ -3,9 +3,10 @@ unit DAOAlumno;
 interface 
     uses Alumno, AVL;
 
-    procedure CargarAlumnosAVL(var alumnos_avl: PUNT_NODO);
+    // Para el contexto
+    procedure CargarAlumnosAVL(var alumnos_avl: PUNT_NODO; campo: E_CAMPOS_ALUMNO);
 
-
+    // Para los controladores
     function EscribirAlumnoEnArchivo(alumno : T_ALUMNO): integer;
     procedure LeerAlumnoDesdeArchivo(var alumno : T_ALUMNO; pos: integer);
     procedure ModificarAlumnoDeArchivo(alumno: T_ALUMNO; pos: integer);
@@ -14,7 +15,7 @@ implementation
     uses SysUtils, DAOUtils;
     const RUTA = './data/alumnos.dat';
 
-    procedure CargarAlumnosAVL(var alumnos_avl: PUNT_NODO);
+    procedure CargarAlumnosAVL(var alumnos_avl: PUNT_NODO; campo: E_CAMPOS_ALUMNO);
     var
         archivo: T_ARCHIVO_ALUMNO;
         alumno: T_ALUMNO;
@@ -30,7 +31,12 @@ implementation
 
             Read(archivo, alumno);
 
-            Str(alumno.dni, alumno_dato.id);
+            case campo of
+                ca_nombre: alumno_dato.id:= alumno.nombre;
+                ca_dni: Str(alumno.dni, alumno_dato.id);
+            else
+                Str(alumno.dni, alumno_dato.id);
+            end;
 
             if (alumno.activo) then 
                 alumnos_avl := INSERTAR(alumnos_avl, alumno_dato);

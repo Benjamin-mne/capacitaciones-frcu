@@ -3,7 +3,7 @@ unit AVL;
 interface 
     type 
         T_DATO = record
-            id: string;
+            id: string; // Realmente es un clave (key), el nombre "id" no representa su utilidad
             pos_arch: integer; 
         end;
 
@@ -25,6 +25,7 @@ interface
         function MINIMO(N: PUNT_NODO): PUNT_NODO; // Función que devuelve el nodo con el id mínimo encontrado
         function ELIMINAR(N: PUNT_NODO; X: T_DATO): PUNT_NODO; // Función recursiva para eliminar un nodo dada la info en un subárbol con la raíz dada y devuelve la raíz del subárbol modificado.
         function BUSCAR(N: PUNT_NODO; id: string): PUNT_NODO; // Función para buscar nodo por id, retorna nil si no existe
+        function DESTRUIR(N: PUNT_NODO): PUNT_NODO;
         function ES_MENOR(a, b: string): boolean;
         function ES_MAYOR(a, b: string): boolean;
 
@@ -287,5 +288,17 @@ implementation
                 BUSCAR:= BUSCAR(N^.sai, id)
             else
                 BUSCAR:= BUSCAR(N^.sad, id);
+        end;
+
+        function DESTRUIR(N: PUNT_NODO): PUNT_NODO;
+        begin
+            if (N <> nil) then
+            begin
+                DESTRUIR(N^.sai);
+                DESTRUIR(N^.sad);
+                Dispose(N);
+            end;
+
+            DESTRUIR:= nil;
         end;
 end.

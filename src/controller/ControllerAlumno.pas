@@ -1,7 +1,7 @@
 unit ControllerAlumno; 
 
 interface
-    uses Alumno, AVL;
+    uses AVL, Alumno, Contexto;
 
     type
         ALUMNO_RES_CONTROLLER = record
@@ -15,11 +15,11 @@ interface
     procedure LiberarAlumnoRes(var L: LISTA_ALUMNOS);
 
     // Controladores
-    function CrearAlumno(alumno: T_ALUMNO; var alumnos_avl: PUNT_NODO): ALUMNO_RES_CONTROLLER;
-    function ObtenerAlumno(dni: string; alumnos_avl: PUNT_NODO): ALUMNO_RES_CONTROLLER;
-    function ObtenerAlumnos(alumnos_avl: PUNT_NODO): ALUMNO_RES_CONTROLLER;
-    function EliminarAlumno(dni: string; var alumnos_avl: PUNT_NODO): ALUMNO_RES_CONTROLLER; 
-    function ModificarAlumno(alumno_actualizado: T_ALUMNO; var alumnos_avl: PUNT_NODO): ALUMNO_RES_CONTROLLER;
+    function CrearAlumno(alumno: T_ALUMNO; var ctx: T_CONTEXTO_ALUMNOS): ALUMNO_RES_CONTROLLER;
+    function ObtenerAlumno(dni: string; arbol_alumnos: NODO_ALUMNO_DNI): ALUMNO_RES_CONTROLLER;
+    function ObtenerAlumnos(arbol_alumnos: NODO_ALUMNO_NOMBRE): ALUMNO_RES_CONTROLLER;
+    function EliminarAlumno(dni: string; var ctx: T_CONTEXTO_ALUMNOS): ALUMNO_RES_CONTROLLER;
+    function ModificarAlumno(alumno_actualizado: T_ALUMNO; var ctx: T_CONTEXTO_ALUMNOS): ALUMNO_RES_CONTROLLER;
 
 implementation
     uses DAOAlumno, SysUtils;
@@ -52,10 +52,11 @@ implementation
         L.tam:= 0;
     end;
 
-    function CrearAlumno(alumno: T_ALUMNO; var alumnos_avl: PUNT_NODO): ALUMNO_RES_CONTROLLER;
+    function CrearAlumno(alumno: T_ALUMNO; var ctx: T_CONTEXTO_ALUMNOS): ALUMNO_RES_CONTROLLER;
     var 
         pos: integer;
-        alumno_nodo: T_DATO;
+        nodo_dni: T_DATO;
+        nodo_nombre: T_DATO;
         res: ALUMNO_RES_CONTROLLER;
     begin
         alumno.activo:= true;
@@ -63,10 +64,16 @@ implementation
         // Escribir en archivo
         pos:= EscribirAlumnoEnArchivo(alumno);
 
-        // Actualizar AVL 
-        Str(alumno.dni, alumno_nodo.id);
-        alumno_nodo.pos_arch:= pos;
-        alumnos_avl:= INSERTAR(alumnos_avl, alumno_nodo);
+        // Actualizar Árbol ordenado por dni
+        Str(alumno.dni, nodo_dni.id);
+        nodo_dni.pos_arch:= pos;
+        ctx.dni:= INSERTAR(ctx.dni, nodo_dni);
+
+        // Actualizar Árbol ordenado por nombre
+        nodo_nombre.id:= alumno.nombre;
+        nodo_nombre.pos_arch:= pos;
+        ctx.nombre:= INSERTAR(ctx.nombre, nodo_nombre);
+
 
         // Armar respuesta
         res:= CrearAlumnoRes();
@@ -77,17 +84,17 @@ implementation
         CrearAlumno:= res;
     end;
 
-    function ObtenerAlumno(dni: string; alumnos_avl: PUNT_NODO): ALUMNO_RES_CONTROLLER;
+    function ObtenerAlumno(dni: string; arbol_alumnos: NODO_ALUMNO_DNI): ALUMNO_RES_CONTROLLER;
     var 
         pos: integer;
-        alumno_buscado: PUNT_NODO;
+        alumno_buscado: NODO_ALUMNO_DNI;
         alumno: T_ALUMNO;
         res: ALUMNO_RES_CONTROLLER;
     begin
         res:= CrearAlumnoRes();
 
         // Buscar en AVL
-        alumno_buscado:= BUSCAR(alumnos_avl, dni);
+        alumno_buscado:= BUSCAR(arbol_alumnos, dni);
 
         if (alumno_buscado <> nil) then 
         begin
@@ -108,7 +115,7 @@ implementation
         ObtenerAlumno:= res;
     end;
 
-    function ObtenerAlumnos(alumnos_avl: PUNT_NODO): ALUMNO_RES_CONTROLLER;
+    function ObtenerAlumnos(arbol_alumnos: NODO_ALUMNO_NOMBRE): ALUMNO_RES_CONTROLLER;
     var res: ALUMNO_RES_CONTROLLER;
         procedure RecorrerAVL(N: PUNT_NODO; var L: LISTA_ALUMNOS);
         var 
@@ -127,7 +134,7 @@ implementation
     begin
         res:= CrearAlumnoRes();
 
-        if (alumnos_avl = nil) then
+        if (arbol_alumnos = nil) then
         begin
             res.error:= true;
             res.msg:= 'No hay alumnos cargados.';
@@ -135,26 +142,26 @@ implementation
         end else 
         begin
 
-            // Recorrer AVL y llenar la lista
+            // Recorrer arbol de alumnos y llenar la lista
             PRIMERO_LISTA_ALUMNOS(res.data);
-            RecorrerAVL(alumnos_avl, res.data);
+            RecorrerAVL(arbol_alumnos, res.data);
             res.msg:= 'Se encontraron ' + IntToStr(res.data.tam) + ' alumnos.';
         end;
 
         ObtenerAlumnos:= res;
     end;
 
-    function EliminarAlumno(dni: string; var alumnos_avl: PUNT_NODO): ALUMNO_RES_CONTROLLER; 
+    function EliminarAlumno(dni: string; var ctx: T_CONTEXTO_ALUMNOS): ALUMNO_RES_CONTROLLER;
     var
         pos: integer;
-        alumno_buscado: PUNT_NODO;
+        alumno_buscado: NODO_ALUMNO_DNI;
         alumno: T_ALUMNO;
         res: ALUMNO_RES_CONTROLLER;
     begin
         res:= CrearAlumnoRes();
 
         // Buscar en el AVL
-        alumno_buscado:= BUSCAR(alumnos_avl, dni);
+        alumno_buscado:= BUSCAR(ctx.dni, dni);
 
         if (alumno_buscado <> nil) then 
         begin
@@ -166,8 +173,12 @@ implementation
             // Eliminar de Archivo
             ModificarAlumnoDeArchivo(alumno, pos);
 
-            // Eliminar de AVL
-            alumnos_avl:= ELIMINAR(alumnos_avl, alumno_buscado^.info);
+            // Eliminar nodo del Árbol ordenado por id
+            ctx.dni:= ELIMINAR(ctx.dni, alumno_buscado^.info);
+
+            // Actualizar el Árbol ordenado por nombre
+            ctx.nombre:= DESTRUIR(ctx.nombre);
+            CargarAlumnosAVL(ctx.nombre, ca_nombre);
 
             // Armar respuesta
             res.msg:= 'Alumno dado de baja con exito.';
@@ -182,19 +193,23 @@ implementation
         EliminarAlumno:= res;
     end;
 
-    function ModificarAlumno(alumno_actualizado: T_ALUMNO; var alumnos_avl: PUNT_NODO): ALUMNO_RES_CONTROLLER;
+    function ModificarAlumno(alumno_actualizado: T_ALUMNO; var ctx: T_CONTEXTO_ALUMNOS): ALUMNO_RES_CONTROLLER;
     var 
         pos: integer;
-        alumno_buscado: PUNT_NODO;
+        alumno_buscado: NODO_ALUMNO_DNI;
         res: ALUMNO_RES_CONTROLLER;
     begin
         res:= CrearAlumnoRes();
         
-        alumno_buscado:= BUSCAR(alumnos_avl, IntToStr(alumno_actualizado.dni));
+        alumno_buscado:= BUSCAR(ctx.dni, IntToStr(alumno_actualizado.dni));
         pos:= alumno_buscado^.info.pos_arch;
 
         // Modificar en Archivo
         ModificarAlumnoDeArchivo(alumno_actualizado, pos);
+
+        // Actualizar el Árbol ordenado por nombre
+        ctx.nombre:= DESTRUIR(ctx.nombre);
+        CargarAlumnosAVL(ctx.nombre, ca_nombre);
 
         // Armar respuesta
         res.msg:= 'Alumno modificado con exito.';

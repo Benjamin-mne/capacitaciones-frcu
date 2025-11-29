@@ -1,16 +1,16 @@
 unit AlumnosView; 
 
 interface
-    uses AVL, Alumno;
+    uses Alumno, Contexto;
 
     procedure MostrarAlumno(A: T_ALUMNO);
 
-    procedure MenuAlumnos(var alumnos_avl: PUNT_NODO);
-    procedure AgregarAlumno(var alumnos_avl: PUNT_NODO);
-    procedure DarDeBajoAlumno(var alumnos_avl: PUNT_NODO);
-    procedure ModificarAlumnoView(var alumnos_avl: PUNT_NODO);
-    procedure ConsultarAlumno(alumnos_avl: PUNT_NODO);
-    procedure ListarAlumnos(alumnos_avl: PUNT_NODO);
+    procedure MenuAlumnos(var ctx: T_CONTEXTO_ALUMNOS);
+    procedure AgregarAlumno(var ctx: T_CONTEXTO_ALUMNOS);
+    procedure DarDeBajoAlumno(var ctx: T_CONTEXTO_ALUMNOS);
+    procedure ModificarAlumnoView(var ctx: T_CONTEXTO_ALUMNOS);
+    procedure ConsultarAlumno(alumnos: NODO_ALUMNO_DNI);
+    procedure ListarAlumnos(alumnos: NODO_ALUMNO_NOMBRE);
 
 implementation
     uses 
@@ -37,7 +37,7 @@ implementation
         end;
     end;
 
-    procedure AgregarAlumno(var alumnos_avl: PUNT_NODO);
+    procedure AgregarAlumno(var ctx: T_CONTEXTO_ALUMNOS);
     var 
         nuevo_alumno: T_ALUMNO;
         dni, es_docente: string;
@@ -68,7 +68,7 @@ implementation
         else 
             nuevo_alumno.docente_utn:= false;
 
-        res:= CrearAlumno(nuevo_alumno, alumnos_avl);
+        res:= CrearAlumno(nuevo_alumno, ctx);
 
         if not (res.error) then 
         begin
@@ -80,7 +80,7 @@ implementation
         end; 
     end;
 
-    procedure ConsultarAlumno(alumnos_avl: PUNT_NODO);
+    procedure ConsultarAlumno(alumnos: NODO_ALUMNO_DNI);
     var
         dni: string;
         dni_int: longint;
@@ -91,7 +91,7 @@ implementation
             Readln(dni);
         until TryStrToInt(dni, dni_int);
 
-        res:= ObtenerAlumno(dni, alumnos_avl);
+        res:= ObtenerAlumno(dni, alumnos);
 
         if not (res.error) then 
         begin
@@ -106,12 +106,12 @@ implementation
         end; 
     end;
 
-    procedure ListarAlumnos(alumnos_avl: PUNT_NODO);
+    procedure ListarAlumnos(alumnos: NODO_ALUMNO_NOMBRE);
     var 
         res: ALUMNO_RES_CONTROLLER;
         A: T_ALUMNO;
     begin
-        res := ObtenerAlumnos(alumnos_avl);
+        res:= ObtenerAlumnos(alumnos);
 
         if not (res.error) then 
         begin
@@ -135,7 +135,7 @@ implementation
             Writeln(res.msg);
     end;
 
-    procedure ModificarAlumnoView(var alumnos_avl: PUNT_NODO);
+    procedure ModificarAlumnoView(var ctx: T_CONTEXTO_ALUMNOS);
     var
         dni: string;
         dni_int: longint;
@@ -143,6 +143,7 @@ implementation
         input: string;
 
         res_buscar_alumno: ALUMNO_RES_CONTROLLER;
+        res_modificar_alumno: ALUMNO_RES_CONTROLLER;
     begin
         repeat
             Write('DNI: ');
@@ -150,7 +151,7 @@ implementation
         until TryStrToInt(dni, dni_int);
 
         
-        res_buscar_alumno:= ObtenerAlumno(dni, alumnos_avl);
+        res_buscar_alumno:= ObtenerAlumno(dni, ctx.dni);
 
         if not (res_buscar_alumno.error) then 
         begin
@@ -214,20 +215,22 @@ implementation
                 end;
             until((input = 'S') OR (input = 'N'));
 
-            ModificarAlumno(alumno_actualizado, alumnos_avl);
-
-            Writeln;
-            Writeln('Alumno actualizado: ');
+            res_modificar_alumno:= ModificarAlumno(alumno_actualizado, ctx);
+            
+            ClrScr;
+            Writeln(res_modificar_alumno.msg);
             Writeln;
             MostrarAlumno(alumno_actualizado);
+
             LiberarAlumnoRes(res_buscar_alumno.data);
+            LiberarAlumnoRes(res_modificar_alumno.data);
         end else
         begin
             Writeln(res_buscar_alumno.msg);
         end; 
     end;
 
-    procedure DarDeBajoAlumno(var alumnos_avl: PUNT_NODO);
+    procedure DarDeBajoAlumno(var ctx: T_CONTEXTO_ALUMNOS);
     var
         dni: string;
         dni_int: longint;
@@ -238,7 +241,7 @@ implementation
             Readln(dni);
         until TryStrToInt(dni, dni_int);
 
-        res:= EliminarAlumno(dni, alumnos_avl);
+        res:= EliminarAlumno(dni, ctx);
 
         if not (res.error) then 
         begin
@@ -253,7 +256,7 @@ implementation
         end; 
     end;
 
-    procedure MenuAlumnos(var alumnos_avl: PUNT_NODO);
+    procedure MenuAlumnos(var ctx: T_CONTEXTO_ALUMNOS);
     var 
         opciones : V_Opciones;
         tecla, op: integer;
@@ -288,31 +291,31 @@ implementation
                         0: 
                         begin 
                             Clrscr; 
-                            AgregarAlumno(alumnos_avl); 
+                            AgregarAlumno(ctx); 
                             ContinuarMenu;
                         end; 
                         1: 
                         begin 
                             Clrscr; 
-                            ConsultarAlumno(alumnos_avl);
+                            ConsultarAlumno(ctx.dni);
                             ContinuarMenu;
                         end;
                         2: 
                         begin 
                             Clrscr; 
-                            ListarAlumnos(alumnos_avl);
+                            ListarAlumnos(ctx.nombre);
                             ContinuarMenu;
                         end;
                         3: 
                         begin 
                             Clrscr; 
-                            ModificarAlumnoView(alumnos_avl);
+                            ModificarAlumnoView(ctx);
                             ContinuarMenu;
                         end;
                         4: 
                         begin 
                             Clrscr; 
-                            DarDeBajoAlumno(alumnos_avl);
+                            DarDeBajoAlumno(ctx);
                             ContinuarMenu;
                         end;
                         5: 
