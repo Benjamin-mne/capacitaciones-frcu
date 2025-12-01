@@ -1,7 +1,9 @@
 unit ControllerAlumno; 
 
 interface
-    uses AVL, Alumno, Contexto;
+    uses 
+        Alumno, Contexto, 
+        AVL, List;
 
     type
         ALUMNO_RES_CONTROLLER = record
@@ -39,7 +41,7 @@ implementation
 
     procedure LiberarAlumnoRes(var L: LISTA_ALUMNOS);
     var
-        aux: PUNT_ITEM;
+        aux: PUNT_ITEM_LISTA_ALUMNOS;
     begin
         while L.cab <> nil do
         begin

@@ -29,15 +29,22 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-echo "-------------- ARBOLES --------------"
+echo "=============== UTILS ==============="
+
 echo "Compilando AVL.pas..."
-fpc src/model/AVL.pas -FUbin
+fpc src/utils/AVL.pas -FUbin
 if [ $? -ne 0 ]; then
     echo "ERROR al compilar AVL.pas"
     exit 1
 fi
 
-echo "=============== UTILS ==============="
+echo "Compilando List.pas..."
+fpc src/utils/List.pas -FUbin
+if [ $? -ne 0 ]; then
+    echo "ERROR al compilar List.pas"
+    exit 1
+fi
+
 echo "Compilando DAOUtils.pas..."
 fpc src/utils/DAOUtils.pas -FUbin
 if [ $? -ne 0 ]; then
@@ -67,6 +74,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "Compilando DAOInscripcion.pas..."
+fpc src/dao/DAOInscripcion.pas -FUbin
+if [ $? -ne 0 ]; then
+    echo "ERROR al compilar DAOInscripcion.pas"
+    exit 1
+fi
+
 echo "=============== CONTEXTO ==============="
 echo "Compilando Contexto.pas..."
 fpc src/context/Contexto.pas -FUbin
@@ -90,6 +104,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "Compilando ControllerInscripcion.pas..."
+fpc src/controller/ControllerInscripcion.pas -FUbin
+if [ $? -ne 0 ]; then
+    echo "ERROR al compilar ControllerInscripcion.pas"
+    exit 1
+fi
+
 echo "=============== VIEW ==============="
 echo "Compilando AlumnosView.pas..."
 fpc src/view/AlumnosView.pas -FUbin
@@ -102,6 +123,13 @@ echo "Compilando CapacitacionesView.pas..."
 fpc src/view/CapacitacionesView.pas -FUbin
 if [ $? -ne 0 ]; then
     echo "ERROR al compilar CapacitacionesView.pas"
+    exit 1
+fi
+
+echo "Compilando InscripcionesView.pas..."
+fpc src/view/InscripcionesView.pas -FUbin
+if [ $? -ne 0 ]; then
+    echo "ERROR al compilar InscripcionesView.pas"
     exit 1
 fi
 

@@ -4,19 +4,19 @@ interface
     uses Capacitacion, AVL;
 
     // Para el contexto
-    procedure CargarCapacitacionesAVL(var capacitacion_avl: PUNT_NODO; campo: E_CAMPOS_CAPACITACION);
+    procedure CargarCapacitacionesAVL(var arbol_capacitaciones: PUNT_NODO; campo: E_CAMPOS_CAPACITACION);
 
     // Para los controladores
     function ObtenerSiguienteIdCapacitacion(): integer;
     function EscribirCapacitacionEnArchivo(capacitacion: T_CAPACITACION): integer;
-    procedure LeerCapacitacionDesdeArchivo(var capacitacion : T_CAPACITACION; pos: integer);
+    procedure LeerCapacitacionDesdeArchivo(var capacitacion: T_CAPACITACION; pos: integer);
     procedure ModificarCapacitacionEnArchivo(capacitacion: T_CAPACITACION; pos: integer);
 
 implementation
     uses SysUtils, DAOUtils;
     const RUTA = './data/capacitaciones.dat';
 
-    procedure CargarCapacitacionesAVL(var capacitacion_avl: PUNT_NODO; campo: E_CAMPOS_CAPACITACION);
+    procedure CargarCapacitacionesAVL(var arbol_capacitaciones: PUNT_NODO; campo: E_CAMPOS_CAPACITACION);
     var
         archivo: T_ARCHIVO_CAPACITACION;
         capacitacion: T_CAPACITACION;
@@ -40,7 +40,7 @@ implementation
             end;
 
             if (capacitacion.activo) then 
-                capacitacion_avl:= INSERTAR(capacitacion_avl, capacitacion_dato);
+                arbol_capacitaciones:= INSERTAR(arbol_capacitaciones, capacitacion_dato);
         end;
 
 

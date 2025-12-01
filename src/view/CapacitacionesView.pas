@@ -15,7 +15,7 @@ interface
 implementation
     uses 
         Crt, SysUtils, 
-        ViewUtils, ControllerCapacitacion;
+        ViewUtils, ControllerCapacitacion, List;
 
     procedure MostrarCapacitacion(C: T_CAPACITACION);
     var

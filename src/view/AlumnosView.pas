@@ -15,7 +15,7 @@ interface
 implementation
     uses 
         Crt, SysUtils, 
-        ViewUtils, ControllerAlumno;
+        ViewUtils, ControllerAlumno, List;
 
     procedure MostrarAlumno(A: T_ALUMNO);
     begin

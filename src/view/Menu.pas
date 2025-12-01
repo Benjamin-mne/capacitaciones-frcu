@@ -10,7 +10,7 @@ interface
 implementation
     uses 
         crt, SysUtils, 
-        ViewUtils, CapacitacionesView, AlumnosView;
+        ViewUtils, CapacitacionesView, AlumnosView, InscripcionesView;
 
     procedure Listados();
     begin
@@ -33,6 +33,7 @@ implementation
             ClrScr;
             AgregarOpcion(opciones, 'Capacitaciones');
             AgregarOpcion(opciones, 'Alumnos');
+            AgregarOpcion(opciones, 'Incripciones');
             AgregarOpcion(opciones, 'Listados');
             AgregarOpcion(opciones, 'Estadistica');
             AgregarOpcion(opciones, 'Salir');
@@ -69,16 +70,21 @@ implementation
                             2: 
                             begin 
                                 Clrscr; 
+                                MenuInscripciones(ctx);
+                            end; 
+                            3: 
+                            begin 
+                                Clrscr; 
                                 Listados();
                                 ContinuarMenu;
                             end;
-                            3: 
+                            4: 
                             begin 
                                 Clrscr; 
                                 Estadistica();
                                 ContinuarMenu;
                             end;
-                            4: 
+                            5: 
                             begin 
                                 Clrscr; 
                                 Writeln('Saliendo...');
@@ -86,7 +92,7 @@ implementation
                         end; 
                     end; 
                 end;
-            until (op = 4) and (tecla = 13);
+            until (op = 5) and (tecla = 13);
         end;
 
 end.

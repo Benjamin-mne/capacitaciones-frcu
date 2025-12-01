@@ -1,7 +1,9 @@
 unit ControllerCapacitacion; 
 
 interface
-    uses Capacitacion, AVL, Contexto;
+    uses 
+        Capacitacion, Contexto, 
+        AVL, List;
 
     type 
         CAPACITACION_RES_CONTROLLER = record
@@ -40,7 +42,7 @@ implementation
 
     procedure LiberarCapacitacionRes(var L: LISTA_CAPACITACIONES);
     var
-        aux: PUNT_ITEM;
+        aux: PUNT_ITEM_LISTA_CAPACITACIONES;
     begin
         while L.cab <> nil do
         begin

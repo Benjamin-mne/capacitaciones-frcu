@@ -4,7 +4,7 @@ interface
     uses Alumno, AVL;
 
     // Para el contexto
-    procedure CargarAlumnosAVL(var alumnos_avl: PUNT_NODO; campo: E_CAMPOS_ALUMNO);
+    procedure CargarAlumnosAVL(var arbol_alumnos: PUNT_NODO; campo: E_CAMPOS_ALUMNO);
 
     // Para los controladores
     function EscribirAlumnoEnArchivo(alumno : T_ALUMNO): integer;
@@ -15,7 +15,7 @@ implementation
     uses SysUtils, DAOUtils;
     const RUTA = './data/alumnos.dat';
 
-    procedure CargarAlumnosAVL(var alumnos_avl: PUNT_NODO; campo: E_CAMPOS_ALUMNO);
+    procedure CargarAlumnosAVL(var arbol_alumnos: PUNT_NODO; campo: E_CAMPOS_ALUMNO);
     var
         archivo: T_ARCHIVO_ALUMNO;
         alumno: T_ALUMNO;
@@ -39,7 +39,7 @@ implementation
             end;
 
             if (alumno.activo) then 
-                alumnos_avl := INSERTAR(alumnos_avl, alumno_dato);
+                arbol_alumnos := INSERTAR(arbol_alumnos, alumno_dato);
         end;
 
 
