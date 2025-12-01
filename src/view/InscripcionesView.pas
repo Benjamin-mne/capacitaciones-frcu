@@ -10,6 +10,7 @@ interface
     procedure DarDeBajaInscripcion(var ctx: T_CONTEXTO);
     procedure ConsultarInscripcion(var ctx: T_CONTEXTO);
     procedure ListarInscripciones(var ctx: T_CONTEXTO);
+    procedure CambiarCondicionAlumno(var ctx: T_CONTEXTO);
 
 implementation
     uses 
@@ -20,6 +21,12 @@ implementation
         Writeln('Inscripcion: (Codigo): ', I.inscripcion.id);
         Writeln('Capacitacion: ', I.capacitacion.nombre,' (Codigo): ', I.capacitacion.id);
         Writeln('Alumno: ', I.alumno.nombre, ' ', I.alumno.apellido, ' (DNI): ', I.alumno.dni);
+
+        if (I.inscripcion.condicion = Aprobado) then
+            Writeln('Condicion: Aprobado')
+        else 
+            Writeln('Condicion: Asistencia');
+
     end;
 
     procedure AgregarInscripcion(var ctx: T_CONTEXTO);
@@ -75,7 +82,6 @@ implementation
         begin
             Clrscr;
             Writeln(res.msg);
-            Readln;
             MostrarInscripcion(res.data.cab^.info);
             LiberarInscripcionRes(res.data);
         end else
@@ -143,6 +149,31 @@ implementation
         end;
     end;
 
+    procedure CambiarCondicionAlumno(var ctx: T_CONTEXTO);
+    var
+        id: string;
+        id_int: longint;
+        res: INSCRIPCION_RES_CONTROLLER;
+    begin
+        repeat
+            Write('Codigo de inscripcion: ');
+            Readln(id);
+        until TryStrToInt(id, id_int);
+
+        res:= ActualizarCondicionInscripcion(id, ctx);
+
+        if not (res.error) then 
+        begin
+            Clrscr;
+            Writeln(res.msg);
+            MostrarInscripcion(res.data.cab^.info);
+            LiberarInscripcionRes(res.data);
+        end else
+        begin
+            Writeln(res.msg);
+        end;
+    end;
+
     procedure MenuInscripciones(var ctx: T_CONTEXTO);
     var 
         opciones : V_Opciones;
@@ -153,6 +184,7 @@ implementation
         AgregarOpcion(opciones, 'Consultar inscripcion');
         AgregarOpcion(opciones, 'Listar inscripciones');
         AgregarOpcion(opciones, 'Dar de baja una inscripcion');
+        AgregarOpcion(opciones, 'Cambiar condicion alumno');
         AgregarOpcion(opciones, 'Volver');
 
         op:= 0;
@@ -201,11 +233,17 @@ implementation
                         4: 
                         begin 
                             Clrscr; 
+                            CambiarCondicionAlumno(ctx);
+                            ContinuarMenu;
+                        end;
+                        5: 
+                        begin 
+                            Clrscr; 
                         end;
                     end; 
                 end; 
             end;
-        until (op = 4) and (tecla = 13);
+        until (op = 5) and (tecla = 13);
     end;
 
 end.

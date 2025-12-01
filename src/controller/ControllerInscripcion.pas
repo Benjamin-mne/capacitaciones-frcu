@@ -21,6 +21,7 @@ interface
     function ObtenerInscripcion(id: string; ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
     function ObtenerInscripciones(ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
     function EliminarInscripcion(id: string; var ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
+    function ActualizarCondicionInscripcion(id: string; var ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
 
 implementation
     uses DAOInscripcion, DAOAlumno, DAOCapacitacion, SysUtils;
@@ -260,5 +261,68 @@ implementation
         end;
 
         EliminarInscripcion:= res;
+    end;
+
+    function ActualizarCondicionInscripcion(id: string; var ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
+    var 
+        inscripcion: T_INSCRIPCION;
+
+        inscripcion_buscada: NODO_INSCRIPCION_ID;
+        alumno_buscado: NODO_CAPACITACION_ID;
+        capacitacion_buscada: NODO_ALUMNO_DNI;
+
+        pos_arch_inscripcion, pos_arch_alumno, pos_arch_capacitacion: integer;
+
+        res_data: T_DATO_LISTA_INSCRIPCIONES;
+        res: INSCRIPCION_RES_CONTROLLER;
+    begin
+        res:= CrearInscripcionRes();
+
+        inscripcion_buscada:= BUSCAR(ctx.inscripciones.id, id);
+
+        if (inscripcion_buscada = nil) then 
+        begin
+            res.error:= true;
+            res.msg:= 'No se encontro una inscripcion con ese codigo.';
+        end else
+        begin
+            pos_arch_inscripcion:= inscripcion_buscada^.info.pos_arch;
+            LeerInscripcionDesdeArchivo(inscripcion, pos_arch_inscripcion);
+
+            res_data.inscripcion:= inscripcion;
+
+            // Buscar en los Árboles de alumnos y capacitaciones ordenados por dni y id respectivamente
+            alumno_buscado:= BUSCAR(ctx.alumnos.dni, IntToStr(res_data.inscripcion.dni_alumno));
+            capacitacion_buscada:= BUSCAR(ctx.capacitaciones.id, IntToStr(res_data.inscripcion.id_capacitacion));
+
+            if (alumno_buscado <> nil) and (capacitacion_buscada <> nil) then 
+            begin
+
+                if (inscripcion.condicion = Aprobado) then
+                    inscripcion.condicion:= Asistencia
+                else 
+                    inscripcion.condicion:= Aprobado;
+
+                pos_arch_alumno:= alumno_buscado^.info.pos_arch;
+                pos_arch_capacitacion:= capacitacion_buscada^.info.pos_arch;
+                
+                // Leer archivo de alumnos y capacitaciones
+                LeerAlumnoDesdeArchivo(res_data.alumno, pos_arch_alumno);
+                LeerCapacitacionDesdeArchivo(res_data.capacitacion, pos_arch_capacitacion);
+
+                // Actualizar en Archivo
+                ModificarInscripcionEnArchivo(inscripcion, pos_arch_inscripcion);
+
+                // Armar respuesta
+                res.msg:= 'Se actualizo correctamente la condicion del alumno.';
+                AGREGAR_LISTA_INSCRIPCION(res.data, res_data);
+            end else 
+            begin
+                res.error:= true;
+                res.msg:= 'No se puede completar la operacion porque el estudiante o capacitacion ya no estan disponibles.';
+            end;
+        end;
+
+        ActualizarCondicionInscripcion:= res;
     end;
 end.
