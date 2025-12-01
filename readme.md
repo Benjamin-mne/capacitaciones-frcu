@@ -1,19 +1,15 @@
 ### TODO: 
 ```
 Operaciones CRUD: 
-[x] CRUD Capacitaciones.
+[x] CRUD Capacitaciones. (Contiene Listado de capacitacion ordenado por nombre.)
 [x] CRUD Alumnos.
-[_] CRUD Inscripciones.
+[x] CRUD Inscripciones. [x] Generar certificado de cursado o de aprobación de una capacitación
 
-Listados:
-[x] Listado de capacitacion ordenado por nombre.
-[_] Listado de capacitaciones de un determinado alumno. (Alumno + capcitaciones)
-[_] Listado de alumnos aprobados de una capacitacion. (Alumnos + capacitacion)
-[_] Generar certificado de cursado o de aprobación de una capacitación
-
-Estadísticas: 
-[_] Distribución (cantidad) de cursos, talleres, seminarios entre dos fechas 
-[_] % de capacitaciones por área/departamento 
+Consultas:
+[x] Listado de capacitaciones de un determinado alumno. (Alumno + capcitaciones)
+[x] Listado de alumnos aprobados de una capacitacion. (Alumnos + capacitacion)
+[_] Distribución (cantidad) de cursos, talleres, seminarios entre dos fechas
+[_] % de capacitaciones por área/departamento
 [_] Generar una opción diferente a las anteriores (libre elección)
 ```
 

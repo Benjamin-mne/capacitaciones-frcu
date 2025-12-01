@@ -22,6 +22,9 @@ interface
     function ObtenerInscripciones(ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
     function EliminarInscripcion(id: string; var ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
     function ActualizarCondicionInscripcion(id: string; var ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
+    function ObtenerInscripcionesDeUnAlumno(dni: string; var ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
+    function ObtenerAlumnosAprobadosDeUnaCapacitacion(id: string; var ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
+
 
 implementation
     uses DAOInscripcion, DAOAlumno, DAOCapacitacion, SysUtils;
@@ -265,8 +268,6 @@ implementation
 
     function ActualizarCondicionInscripcion(id: string; var ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
     var 
-        inscripcion: T_INSCRIPCION;
-
         inscripcion_buscada: NODO_INSCRIPCION_ID;
         alumno_buscado: NODO_CAPACITACION_ID;
         capacitacion_buscada: NODO_ALUMNO_DNI;
@@ -287,9 +288,7 @@ implementation
         end else
         begin
             pos_arch_inscripcion:= inscripcion_buscada^.info.pos_arch;
-            LeerInscripcionDesdeArchivo(inscripcion, pos_arch_inscripcion);
-
-            res_data.inscripcion:= inscripcion;
+            LeerInscripcionDesdeArchivo(res_data.inscripcion, pos_arch_inscripcion);
 
             // Buscar en los Árboles de alumnos y capacitaciones ordenados por dni y id respectivamente
             alumno_buscado:= BUSCAR(ctx.alumnos.dni, IntToStr(res_data.inscripcion.dni_alumno));
@@ -298,10 +297,10 @@ implementation
             if (alumno_buscado <> nil) and (capacitacion_buscada <> nil) then 
             begin
 
-                if (inscripcion.condicion = Aprobado) then
-                    inscripcion.condicion:= Asistencia
+                if (res_data.inscripcion.condicion = Aprobado) then
+                    res_data.inscripcion.condicion:= Asistencia
                 else 
-                    inscripcion.condicion:= Aprobado;
+                    res_data.inscripcion.condicion:= Aprobado;
 
                 pos_arch_alumno:= alumno_buscado^.info.pos_arch;
                 pos_arch_capacitacion:= capacitacion_buscada^.info.pos_arch;
@@ -311,7 +310,7 @@ implementation
                 LeerCapacitacionDesdeArchivo(res_data.capacitacion, pos_arch_capacitacion);
 
                 // Actualizar en Archivo
-                ModificarInscripcionEnArchivo(inscripcion, pos_arch_inscripcion);
+                ModificarInscripcionEnArchivo(res_data.inscripcion, pos_arch_inscripcion);
 
                 // Armar respuesta
                 res.msg:= 'Se actualizo correctamente la condicion del alumno.';
@@ -325,4 +324,97 @@ implementation
 
         ActualizarCondicionInscripcion:= res;
     end;
+
+    function ObtenerInscripcionesDeUnAlumno(dni: string; var ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
+    var 
+        alumno_buscado: NODO_ALUMNO_DNI;
+
+        todas_las_inscripciones: INSCRIPCION_RES_CONTROLLER;
+        inscripciones_filtradas: INSCRIPCION_RES_CONTROLLER;
+        temp: T_DATO_LISTA_INSCRIPCIONES;
+    begin
+        // Buscar en los Árboles de alumnos ordenado por dni
+        alumno_buscado:= BUSCAR(ctx.alumnos.dni, dni);
+
+        if (alumno_buscado <> nil) then 
+        begin
+            todas_las_inscripciones:= ObtenerInscripciones(ctx);
+
+            if not (todas_las_inscripciones.error) then
+            begin
+                inscripciones_filtradas:= CrearInscripcionRes();
+                PRIMERO_LISTA_INSCRIPCION(inscripciones_filtradas.data);
+
+                // Recorrer la lista de todas las capacitaciones
+                PRIMERO_LISTA_INSCRIPCION(todas_las_inscripciones.data);
+
+                while RECUPERAR_LISTA_INSCRIPCION(todas_las_inscripciones.data, temp) do
+                begin
+                    if (IntToStr(temp.alumno.dni) = dni) then
+                        AGREGAR_LISTA_INSCRIPCION(inscripciones_filtradas.data, temp);
+
+                    SIGUIENTE_LISTA_INSCRIPCION(todas_las_inscripciones.data);
+                end;
+
+                // Armar respuesta
+                inscripciones_filtradas.msg:= 'Capacitaciones del alumno obtenidas correctamente.';
+
+                ObtenerInscripcionesDeUnAlumno:= inscripciones_filtradas;
+            end else 
+                ObtenerInscripcionesDeUnAlumno:= todas_las_inscripciones;
+        end else 
+        begin
+            inscripciones_filtradas.error:= true;
+            inscripciones_filtradas.msg:= 'No se encontro un alumno con ese dni.';
+
+            ObtenerInscripcionesDeUnAlumno:= inscripciones_filtradas;
+        end;
+    end;
+
+    function ObtenerAlumnosAprobadosDeUnaCapacitacion(id: string; var ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
+    var 
+        capacitacion_buscada: NODO_ALUMNO_DNI;
+
+        todas_las_inscripciones: INSCRIPCION_RES_CONTROLLER;
+        inscripciones_filtradas: INSCRIPCION_RES_CONTROLLER;
+        temp: T_DATO_LISTA_INSCRIPCIONES;
+    begin
+        // Buscar en los Árboles de capacitaciones ordenado por id
+        capacitacion_buscada:= BUSCAR(ctx.capacitaciones.id, id);
+
+        if (capacitacion_buscada <> nil) then 
+        begin
+            todas_las_inscripciones:= ObtenerInscripciones(ctx);
+
+            if not (todas_las_inscripciones.error) then
+            begin
+                inscripciones_filtradas:= CrearInscripcionRes();
+                PRIMERO_LISTA_INSCRIPCION(inscripciones_filtradas.data);
+
+                // Recorrer la lista de todas las capacitaciones
+                PRIMERO_LISTA_INSCRIPCION(todas_las_inscripciones.data);
+
+                while RECUPERAR_LISTA_INSCRIPCION(todas_las_inscripciones.data, temp) do
+                begin
+                    if (IntToStr(temp.capacitacion.id) = id) and (temp.inscripcion.condicion = Aprobado) then
+                        AGREGAR_LISTA_INSCRIPCION(inscripciones_filtradas.data, temp);
+
+                    SIGUIENTE_LISTA_INSCRIPCION(todas_las_inscripciones.data);
+                end;
+
+                // Armar respuesta
+                inscripciones_filtradas.msg:= 'Alumno obtenidos correctamente.';
+
+                ObtenerAlumnosAprobadosDeUnaCapacitacion:= inscripciones_filtradas;
+            end else 
+                ObtenerAlumnosAprobadosDeUnaCapacitacion:= todas_las_inscripciones;
+        end else 
+        begin
+            inscripciones_filtradas.error:= true;
+            inscripciones_filtradas.msg:= 'No existe una capacitacion con ese codigo.';
+
+            ObtenerAlumnosAprobadosDeUnaCapacitacion:= inscripciones_filtradas;
+        end;
+    end;
+
 end.

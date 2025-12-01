@@ -1,6 +1,8 @@
 unit ViewUtils;
 
 interface
+    uses Alumno, Capacitacion;
+
     const 
         MENSAJE_CONTINUAR = 'Presione cualquier tecla para continuar...';
 
@@ -12,8 +14,79 @@ interface
     procedure ContinuarMenu();
     function DetectarTecla(): integer;
 
+    procedure MostrarAlumno(A: T_ALUMNO);
+    procedure MostrarCapacitacion(C: T_CAPACITACION);
+
 implementation
     uses crt;
+    
+    procedure MostrarAlumno(A: T_ALUMNO);
+    begin
+        with A do
+        begin
+            Writeln('DNI: ', dni);
+            Writeln('Nombre: ', nombre);
+            Writeln('Apellido: ', apellido);
+            Writeln('Fecha de Nacimiento: ', fecha_nacimiento);
+            if docente_utn then
+                Writeln('Docente UTN: Si')
+            else
+                Writeln('Docente UTN: No');
+
+            {
+            if activo then
+                Writeln('Estado: Activo')
+            else
+                Writeln('Estado: Inactivo');
+            }
+
+        end;
+    end;
+
+    procedure MostrarCapacitacion(C: T_CAPACITACION);
+    var
+        i: integer;
+    begin
+        with C do
+        begin
+            Writeln('Codigo: ', id);
+            Writeln('Nombre: ', nombre);
+            Writeln('Fecha inicio: ', fecha_inicio);
+            Writeln('Fecha fin: ', fecha_fin);
+
+            Write('Tipo: ');
+            case tipo of
+                Curso: Writeln('Curso');
+                Taller: Writeln('Taller');
+                Seminario: Writeln('Seminario');
+            end;
+
+            Write('Area: ');
+            case area of
+                ISI: Writeln('ISI');
+                LOI: Writeln('LOI');
+                Civil: Writeln('Civil');
+                Electro: Writeln('Electro');
+                General: Writeln('General');
+            end;
+
+            Writeln('Docentes:');
+            for i := 1 to 10 do
+            begin
+                if docentes[i] <> '' then
+                    Writeln('  - ', docentes[i]);
+            end;
+
+            Writeln('Horas: ', horas);
+
+            {
+            if activo then
+                Writeln('Estado: Activo')
+            else
+                Writeln('Estado: Inactivo');
+            }
+        end;
+    end;
 
     procedure MostrarMenu(opciones: V_Opciones; op: integer);
     var

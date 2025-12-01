@@ -3,8 +3,6 @@ unit CapacitacionesView;
 interface
     uses Capacitacion, Contexto;
 
-    procedure MostrarCapacitacion(C: T_CAPACITACION);
-
     procedure MenuCapacitaciones(var ctx: T_CONTEXTO_CAPACITACIONES);
     procedure AgregarCapacitacion(var ctx: T_CONTEXTO_CAPACITACIONES);
     procedure DarDeBajaCapacitacion(var ctx: T_CONTEXTO_CAPACITACIONES);
@@ -16,50 +14,6 @@ implementation
     uses 
         Crt, SysUtils, 
         ViewUtils, ControllerCapacitacion, List;
-
-    procedure MostrarCapacitacion(C: T_CAPACITACION);
-    var
-        i: integer;
-    begin
-        with C do
-        begin
-            Writeln('Codigo: ', id);
-            Writeln('Nombre: ', nombre);
-            Writeln('Fecha inicio: ', fecha_inicio);
-            Writeln('Fecha fin: ', fecha_fin);
-
-            Write('Tipo: ');
-            case tipo of
-                Curso: Writeln('Curso');
-                Taller: Writeln('Taller');
-                Seminario: Writeln('Seminario');
-            end;
-
-            Write('Area: ');
-            case area of
-                ISI: Writeln('ISI');
-                LOI: Writeln('LOI');
-                Civil: Writeln('Civil');
-                Electro: Writeln('Electro');
-                General: Writeln('General');
-            end;
-
-            Writeln('Docentes:');
-            for i := 1 to 10 do
-            begin
-                if docentes[i] <> '' then
-                    Writeln('  - ', docentes[i]);
-            end;
-
-            Writeln('Horas: ', horas);
-
-            if activo then
-                Writeln('Estado: Activo')
-            else
-                Writeln('Estado: Inactivo');
-        end;
-    end;
-
     
     procedure AgregarCapacitacion(var ctx: T_CONTEXTO_CAPACITACIONES);
     var 

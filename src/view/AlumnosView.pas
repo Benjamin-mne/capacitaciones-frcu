@@ -2,9 +2,7 @@ unit AlumnosView;
 
 interface
     uses Alumno, Contexto;
-
-    procedure MostrarAlumno(A: T_ALUMNO);
-
+    
     procedure MenuAlumnos(var ctx: T_CONTEXTO_ALUMNOS);
     procedure AgregarAlumno(var ctx: T_CONTEXTO_ALUMNOS);
     procedure DarDeBajoAlumno(var ctx: T_CONTEXTO_ALUMNOS);
@@ -16,26 +14,6 @@ implementation
     uses 
         Crt, SysUtils, 
         ViewUtils, ControllerAlumno, List;
-
-    procedure MostrarAlumno(A: T_ALUMNO);
-    begin
-        with A do
-        begin
-            Writeln('DNI: ', dni);
-            Writeln('Nombre: ', nombre);
-            Writeln('Apellido: ', apellido);
-            Writeln('Fecha de Nacimiento: ', fecha_nacimiento);
-            if docente_utn then
-                Writeln('Docente UTN: Si')
-            else
-                Writeln('Docente UTN: No');
-
-            if activo then
-                Writeln('Estado: Activo')
-            else
-                Writeln('Estado: Inactivo');
-        end;
-    end;
 
     procedure AgregarAlumno(var ctx: T_CONTEXTO_ALUMNOS);
     var 

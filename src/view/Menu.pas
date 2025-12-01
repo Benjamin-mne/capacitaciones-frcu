@@ -4,22 +4,11 @@ interface
     uses AVL, Contexto;
 
     procedure MenuPrincipal(var ctx: T_CONTEXTO);
-    procedure Listados();
-    procedure Estadistica();
 
 implementation
     uses 
         crt, SysUtils, 
-        ViewUtils, CapacitacionesView, AlumnosView, InscripcionesView;
-
-    procedure Listados();
-    begin
-        Writeln('TODO: Listados..');
-    end;
-    procedure Estadistica();
-    begin
-        Writeln('TODO: Estadistica..');
-    end;
+        ViewUtils, CapacitacionesView, AlumnosView, InscripcionesView, ConsultasView;
 
     procedure MenuPrincipal(var ctx: T_CONTEXTO);
         var 
@@ -34,8 +23,7 @@ implementation
             AgregarOpcion(opciones, 'Capacitaciones');
             AgregarOpcion(opciones, 'Alumnos');
             AgregarOpcion(opciones, 'Incripciones');
-            AgregarOpcion(opciones, 'Listados');
-            AgregarOpcion(opciones, 'Estadistica');
+            AgregarOpcion(opciones, 'Consultas');
             AgregarOpcion(opciones, 'Salir');
 
             op := 0;
@@ -75,16 +63,9 @@ implementation
                             3: 
                             begin 
                                 Clrscr; 
-                                Listados();
-                                ContinuarMenu;
+                                MenuConsultas(ctx);
                             end;
                             4: 
-                            begin 
-                                Clrscr; 
-                                Estadistica();
-                                ContinuarMenu;
-                            end;
-                            5: 
                             begin 
                                 Clrscr; 
                                 Writeln('Saliendo...');
@@ -92,7 +73,7 @@ implementation
                         end; 
                     end; 
                 end;
-            until (op = 5) and (tecla = 13);
+            until (op = 4) and (tecla = 13);
         end;
 
 end.

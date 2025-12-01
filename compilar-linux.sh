@@ -133,6 +133,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "Compilando ConsultasView.pas..."
+fpc src/view/ConsultasView.pas -FUbin
+if [ $? -ne 0 ]; then
+    echo "ERROR al compilar ConsultasView.pas"
+    exit 1
+fi
+
 echo "Compilando Menu.pas..."
 fpc src/view/Menu.pas -FUbin
 if [ $? -ne 0 ]; then
