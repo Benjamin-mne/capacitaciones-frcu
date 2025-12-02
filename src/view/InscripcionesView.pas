@@ -128,8 +128,8 @@ implementation
         begin
             Clrscr;
             Writeln(res.msg);
-            Writeln('Presione una tecla para mostrar inscripcion.');
-            Writeln;
+            Writeln('[INSCRIPCIONES]: Presione una tecla para mostrar las inscripciones...');
+            Readkey;
 
             PRIMERO_LISTA_INSCRIPCION(res.data);
 

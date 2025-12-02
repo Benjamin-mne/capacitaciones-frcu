@@ -17,9 +17,40 @@ interface
     procedure MostrarAlumno(A: T_ALUMNO);
     procedure MostrarCapacitacion(C: T_CAPACITACION);
 
+    function IngresarFecha(): string;
+
 implementation
-    uses crt;
-    
+    uses crt, SysUtils;
+
+    function IngresarFecha(): string;
+    var 
+        dia, mes, anio: string;
+        dia_int, mes_int, anio_int: longint;
+    begin
+        repeat
+            Write('Ingresar dia (1-31): ');
+            Readln(dia);
+        until TryStrToInt(dia, dia_int) and (dia_int >= 1) and (dia_int <= 31);
+        Writeln;
+        repeat
+            Write('Ingresar mes (1-12): ');
+            Readln(mes);
+        until TryStrToInt(mes, mes_int) and (mes_int >= 1) and (mes_int <= 12);
+        Writeln;
+        repeat
+            Write('Ingresar anio (>=1900): ');
+            Readln(anio);
+        until TryStrToInt(anio, anio_int) and (anio_int >= 1900);
+
+        if Length(dia) = 1 then
+            dia:= '0' + dia;
+
+        if Length(mes) = 1 then
+            mes:= '0' + mes;
+
+        IngresarFecha:= dia + '/' + mes + '/' + anio;
+    end;
+
     procedure MostrarAlumno(A: T_ALUMNO);
     begin
         with A do
@@ -71,7 +102,7 @@ implementation
             end;
 
             Writeln('Docentes:');
-            for i := 1 to 10 do
+            for i:= 1 to 10 do
             begin
                 if docentes[i] <> '' then
                     Writeln('  - ', docentes[i]);
@@ -93,7 +124,7 @@ implementation
         i: integer;
     begin 
         clrscr; 
-        for i := 0 to Length(opciones) - 1 do 
+        for i:= 0 to Length(opciones) - 1 do 
         begin 
             if (i = op) then 
             begin 
@@ -112,9 +143,9 @@ implementation
     var
         n: integer;
     begin
-        n := Length(opciones);
+        n:= Length(opciones);
         SetLength(opciones, n + 1);
-        opciones[n] := opcion; 
+        opciones[n]:= opcion; 
     end;
 
     procedure ContinuarMenu();
@@ -128,9 +159,9 @@ implementation
     var
         tecla: integer;
     begin 
-        tecla := Ord(ReadKey);
+        tecla:= Ord(ReadKey);
         if tecla = 0 then 
-            tecla := Ord(ReadKey);
-        DetectarTecla := tecla; 
+            tecla:= Ord(ReadKey);
+        DetectarTecla:= tecla; 
     end;
 end.

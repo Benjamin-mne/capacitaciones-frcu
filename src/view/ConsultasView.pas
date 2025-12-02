@@ -1,7 +1,7 @@
 unit ConsultasView; 
 
 interface
-    uses Inscripcion, Contexto, List;
+    uses Inscripcion, Contexto;
 
     procedure MenuConsultas(var ctx: T_CONTEXTO);
     procedure ListarCapacitacionesDeUnAlumno(var ctx: T_CONTEXTO);
@@ -11,7 +11,10 @@ interface
 
 implementation
     uses 
-        Crt, SysUtils, ViewUtils, ControllerInscripcion;
+        Crt, 
+        SysUtils, Utils, ViewUtils, List, 
+        Capacitacion,
+        ControllerInscripcion, ControllerCapacitacion;
 
     procedure ListarCapacitacionesDeUnAlumno(var ctx: T_CONTEXTO);
     var 
@@ -39,8 +42,7 @@ implementation
             MostrarAlumno(res.data.cab^.info.alumno);
 
             Writeln;
-            Writeln('[CAPACITACIONES]: ');
-            Writeln('Presione una tecla para mostrar las capacitaciones...');
+            Writeln('[CAPACITACIONES]: Presione una tecla para mostrar las capacitaciones...');
             Readkey;
 
             PRIMERO_LISTA_INSCRIPCION(res.data);
@@ -96,8 +98,7 @@ implementation
             MostrarCapacitacion(res.data.cab^.info.capacitacion);
 
             Writeln;
-            Writeln('[ALUMNOS]: ');
-            Writeln('Presione una tecla para mostrar los alumnos...');
+            Writeln('[ALUMNOS]: Presione una tecla para mostrar los alumnos...');
             Readkey;
 
             PRIMERO_LISTA_INSCRIPCION(res.data);
@@ -122,19 +123,95 @@ implementation
         begin
             Writeln;
             Writeln(res.msg);
+            LiberarInscripcionRes(res.data);
         end;
     end;
 
 
     procedure ListarCapacitacionesDeUnIntervalo(var ctx: T_CONTEXTO);
+    var        
+        fecha_a, fecha_b: string;
+        res: CAPACITACION_RES_CONTROLLER;
+        C: T_CAPACITACION;
     begin
-        Write('Todo...')
+        Writeln('[Fecha Inicio: ]');
+        fecha_a:= IngresarFecha();
+        Writeln;
+
+        repeat
+            Writeln('[Fecha Fin: ]');
+            fecha_b:= IngresarFecha();
+
+            if not (FechaMayorIgual(fecha_b, fecha_a)) then 
+                Writeln('La fecha de fin debe ser mayor o igual que la fecha de inicio.')
+
+        until(FechaMayorIgual(fecha_b, fecha_a));
+
+        res:= ObtenerCapacitacionesEntreDosFechas(fecha_a, fecha_b, ctx.capacitaciones);
+
+        if not (res.error) then 
+        begin
+            Writeln;
+            Writeln(res.msg);
+
+            Writeln;
+            if (res.data.tam > 0) then 
+            begin
+                Writeln('[CAPACITACIONES]: Presione una tecla para mostrar las capacitaciones...');
+                Readkey;
+            end;
+
+            PRIMERO_LISTA_CAPACITACIONES(res.data);
+
+            while RECUPERAR_LISTA_CAPACITACIONES(res.data, C) do 
+            begin
+                Writeln;
+                MostrarCapacitacion(C);
+
+                SIGUIENTE_LISTA_CAPACITACIONES(res.data);
+                Readkey;
+            end;
+
+            LiberarCapacitacionRes(res.data);
+        end else 
+        begin
+            Writeln;
+            Writeln(res.msg);
+        end;
     end;
 
-
     procedure MostrarPorcentajeDistribucion(var ctx: T_CONTEXTO);
+
+        function porcentaje(area: E_AREA_CAPACITACION; ctx: T_CONTEXTO_CAPACITACIONES; total: integer): real;
+        var 
+            aux_capacitacion: CAPACITACION_RES_CONTROLLER;
+        begin
+            aux_capacitacion:= ObtenerCapacitacionesPorArea(area, ctx);
+
+            if (aux_capacitacion.data.tam = 0) then 
+                porcentaje:= 0
+            else 
+                porcentaje:= aux_capacitacion.data.tam / total;
+        end;
+
+    var 
+        capacitaciones: CAPACITACION_RES_CONTROLLER;
+        total: integer;
     begin
-        Write('Todo...')
+        capacitaciones:= ObtenerCapacitaciones(ctx.capacitaciones.nombre);
+        
+        if (capacitaciones.data.tam = 0) then 
+            Write('No se encontraron capacitaciones.')
+        else 
+        begin
+            total:= capacitaciones.data.tam;
+
+            Writeln('Porcentaje ISI: ', 100 * porcentaje(ISI, ctx.capacitaciones, total):0:2, '%');
+            Writeln('Porcentaje LOI: ', 100 * porcentaje(LOI, ctx.capacitaciones, total):0:2, '%');
+            Writeln('Porcentaje Civil: ', 100 * porcentaje(Civil, ctx.capacitaciones, total):0:2, '%');
+            Writeln('Porcentaje Electro: ', 100 * porcentaje(Electro, ctx.capacitaciones, total):0:2, '%');
+            Writeln('Porcentaje General: ', 100 * porcentaje(General, ctx.capacitaciones, total):0:2, '%');
+        end;
     end;
 
     procedure MenuConsultas(var ctx: T_CONTEXTO);

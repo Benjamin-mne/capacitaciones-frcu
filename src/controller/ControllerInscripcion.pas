@@ -203,7 +203,8 @@ implementation
             RecorrerAVL(ctx.inscripciones.id, res.data);
 
             //Crear respuesta
-            res.msg:= 'Inscripciones obtenidas con exito.';
+            res.msg:= 'Se encontraron ' + IntToStr(res.data.tam) + ' inscripciones.';
+
             ObtenerInscripciones:= res;
         end;
     end;
@@ -373,48 +374,60 @@ implementation
 
     function ObtenerAlumnosAprobadosDeUnaCapacitacion(id: string; var ctx: T_CONTEXTO): INSCRIPCION_RES_CONTROLLER;
     var 
-        capacitacion_buscada: NODO_ALUMNO_DNI;
+        capacitacion_buscada: NODO_CAPACITACION_ID;
 
         todas_las_inscripciones: INSCRIPCION_RES_CONTROLLER;
         inscripciones_filtradas: INSCRIPCION_RES_CONTROLLER;
         temp: T_DATO_LISTA_INSCRIPCIONES;
     begin
-        // Buscar en los Árboles de capacitaciones ordenado por id
+        inscripciones_filtradas:= CrearInscripcionRes();
+
+        // Buscar capacitación
         capacitacion_buscada:= BUSCAR(ctx.capacitaciones.id, id);
 
-        if (capacitacion_buscada <> nil) then 
+        if (capacitacion_buscada = nil) then
         begin
+            inscripciones_filtradas.error:= true;
+            inscripciones_filtradas.msg:= 'No existe una capacitacion con ese codigo.';
+            ObtenerAlumnosAprobadosDeUnaCapacitacion:= inscripciones_filtradas;
+        end
+        else
+        begin
+            // Buscar en los Árboles de capacitaciones ordenado por id
             todas_las_inscripciones:= ObtenerInscripciones(ctx);
 
-            if not (todas_las_inscripciones.error) then
+            if todas_las_inscripciones.error then
+                ObtenerAlumnosAprobadosDeUnaCapacitacion:= todas_las_inscripciones
+            else
             begin
-                inscripciones_filtradas:= CrearInscripcionRes();
                 PRIMERO_LISTA_INSCRIPCION(inscripciones_filtradas.data);
-
-                // Recorrer la lista de todas las capacitaciones
                 PRIMERO_LISTA_INSCRIPCION(todas_las_inscripciones.data);
 
+                // Recorrer la lista de todas las capacitaciones
                 while RECUPERAR_LISTA_INSCRIPCION(todas_las_inscripciones.data, temp) do
                 begin
-                    if (IntToStr(temp.capacitacion.id) = id) and (temp.inscripcion.condicion = Aprobado) then
+                    if (IntToStr(temp.capacitacion.id) = id) and 
+                    (temp.inscripcion.condicion = Aprobado) then
+                    begin
                         AGREGAR_LISTA_INSCRIPCION(inscripciones_filtradas.data, temp);
+                    end;
 
                     SIGUIENTE_LISTA_INSCRIPCION(todas_las_inscripciones.data);
                 end;
 
                 // Armar respuesta
-                inscripciones_filtradas.msg:= 'Alumno obtenidos correctamente.';
+                if inscripciones_filtradas.data.tam = 0 then
+                begin
+                    inscripciones_filtradas.error:= true;
+                    inscripciones_filtradas.msg:= 'No hay alumnos aprobados en esta capacitacion.';
+                end
+                else
+                    inscripciones_filtradas.msg:= 'Alumnos aprobados obtenidos correctamente.';
 
                 ObtenerAlumnosAprobadosDeUnaCapacitacion:= inscripciones_filtradas;
-            end else 
-                ObtenerAlumnosAprobadosDeUnaCapacitacion:= todas_las_inscripciones;
-        end else 
-        begin
-            inscripciones_filtradas.error:= true;
-            inscripciones_filtradas.msg:= 'No existe una capacitacion con ese codigo.';
-
-            ObtenerAlumnosAprobadosDeUnaCapacitacion:= inscripciones_filtradas;
+            end;
         end;
     end;
+
 
 end.

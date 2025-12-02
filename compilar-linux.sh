@@ -52,6 +52,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+echo "Compilando Utils.pas..."
+fpc src/utils/Utils.pas -FUbin
+if [ $? -ne 0 ]; then
+    echo "ERROR al compilar Utils.pas"
+    exit 1
+fi
+
 echo "Compilando ViewUtils.pas..."
 fpc src/utils/ViewUtils.pas -FUbin
 if [ $? -ne 0 ]; then

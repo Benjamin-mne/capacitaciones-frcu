@@ -125,7 +125,7 @@ implementation
         while (not Eof(archivo)) and (not res) do 
         begin
             Read(archivo, inscripcion);
-            if (inscripcion.dni_alumno = dni_alumno) and (inscripcion.id_capacitacion = id_capacitacion) then 
+            if (inscripcion.dni_alumno = dni_alumno) and (inscripcion.id_capacitacion = id_capacitacion) and (inscripcion.activo) then 
                 res:= true;
         end;
 

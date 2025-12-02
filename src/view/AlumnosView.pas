@@ -12,8 +12,9 @@ interface
 
 implementation
     uses 
-        Crt, SysUtils, 
-        ViewUtils, ControllerAlumno, List;
+        Crt, 
+        SysUtils, Utils, ViewUtils, List,
+        ControllerAlumno;
 
     procedure AgregarAlumno(var ctx: T_CONTEXTO_ALUMNOS);
     var 
@@ -34,7 +35,7 @@ implementation
         Write('Apellido: ');
         Readln(nuevo_alumno.apellido);
         Write('Fecha Nacimiento: ');
-        Readln(nuevo_alumno.fecha_nacimiento);
+        nuevo_alumno.fecha_nacimiento:= IngresarFecha();
 
         repeat
             Write('Es docente UTN? S/N: ');
@@ -95,8 +96,8 @@ implementation
         begin
             Clrscr;
             Writeln(res.msg);
-            Writeln('Presione una tecla para mostrar alumnos.');
-            Writeln;
+            Writeln('[ALUMNOS]: Presione una tecla para mostrar los alumnos...');
+            Readkey;
 
             PRIMERO_LISTA_ALUMNOS(res.data);
 
@@ -169,7 +170,7 @@ implementation
                 if (input = 'S') then 
                 begin
                     Write('Ingrese fecha de nacimiento: ');
-                    Readln(alumno_actualizado.fecha_nacimiento);
+                    alumno_actualizado.fecha_nacimiento:= IngresarFecha();
                 end;
             until((input = 'S') OR (input = 'N'));
 

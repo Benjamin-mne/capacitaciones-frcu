@@ -8,8 +8,8 @@ Operaciones CRUD:
 Consultas:
 [x] Listado de capacitaciones de un determinado alumno. (Alumno + capcitaciones)
 [x] Listado de alumnos aprobados de una capacitacion. (Alumnos + capacitacion)
-[_] Distribución (cantidad) de cursos, talleres, seminarios entre dos fechas
-[_] % de capacitaciones por área/departamento
+[x] Distribución (cantidad) de cursos, talleres, seminarios entre dos fechas
+[x] % de capacitaciones por área/departamento
 [_] Generar una opción diferente a las anteriores (libre elección)
 ```
 

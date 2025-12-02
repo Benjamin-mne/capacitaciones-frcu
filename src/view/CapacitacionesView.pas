@@ -12,8 +12,9 @@ interface
 
 implementation
     uses 
-        Crt, SysUtils, 
-        ViewUtils, ControllerCapacitacion, List;
+        Crt, 
+        SysUtils, Utils, ViewUtils, List,
+        ControllerCapacitacion;
     
     procedure AgregarCapacitacion(var ctx: T_CONTEXTO_CAPACITACIONES);
     var 
@@ -28,11 +29,18 @@ implementation
         Write('Nombre: ');
         Readln(capacitacion.nombre);
 
-        Write('Fecha Inicio: ');
-        Readln(capacitacion.fecha_inicio);
+        Writeln('[Fecha Inicio: ]');
+        capacitacion.fecha_inicio:= IngresarFecha();
+        Writeln;
 
-        Write('Fecha Fin: ');
-        Readln(capacitacion.fecha_fin);
+        repeat
+            Writeln('[Fecha Fin: ]');
+            capacitacion.fecha_fin:= IngresarFecha();
+
+            if not (FechaMayorIgual(capacitacion.fecha_fin, capacitacion.fecha_inicio)) then 
+                Writeln('La fecha de finalizacion debe ser mayor que la fecha de inicio.')
+
+        until(FechaMayorIgual(capacitacion.fecha_fin, capacitacion.fecha_inicio));
 
         repeat
             Write('Tipo (curso/taller/seminario): ');
@@ -132,8 +140,8 @@ implementation
         begin
             Clrscr;
             Writeln(res.msg);
-            Writeln('Presione una tecla para mostrar alumnos.');
-            Writeln;
+            Writeln('[CAPACITACIONES]: Presione una tecla para mostrar las capacitaciones...');
+            Readkey;
 
             PRIMERO_LISTA_CAPACITACIONES(res.data);
 
@@ -192,20 +200,30 @@ implementation
 
                 if (input = 'S') then 
                 begin
-                    Write('Ingrese fecha de inicio: ');
-                    Readln(capacitacion_actualizada.fecha_inicio);
+                    Writeln('[Fecha Inicio: ]');
+                    capacitacion_actualizada.fecha_inicio:= IngresarFecha();
                 end;
             until((input = 'S') OR (input = 'N'));
 
             repeat
-                Writeln;
-                Write('Modificar fecha de finalizacion? S/N: ');
-                Readln(input);
+                if (FechaMayorIgual(capacitacion_actualizada.fecha_fin, capacitacion_actualizada.fecha_inicio)) then 
+                begin
+                    Writeln;
+                    Write('Modificar fecha de finalizacion? S/N: ');
+                    Readln(input);
+                end else 
+                    input:= 'S';
 
                 if (input = 'S') then 
                 begin
-                    Write('Ingrese fecha de finalizacion: ');
-                    Readln(capacitacion_actualizada.fecha_fin);
+                    repeat
+                        Writeln('[Fecha Fin: ]');
+                        capacitacion_actualizada.fecha_fin:= IngresarFecha();
+
+                        if not (FechaMayorIgual(capacitacion_actualizada.fecha_fin, capacitacion_actualizada.fecha_inicio)) then 
+                            Writeln('La fecha de finalizacion debe ser mayor que la fecha de inicio.')
+
+                    until(FechaMayorIgual(capacitacion_actualizada.fecha_fin, capacitacion_actualizada.fecha_inicio));
                 end;
             until((input = 'S') OR (input = 'N'));
 
@@ -260,7 +278,7 @@ implementation
                 Write('Modificar horas? S/N: ');
                 Readln(input);
 
-                if (input = 'S') then 
+                if (input <> 'N') then 
                 begin
                     repeat
                         Write('Horas: ');
@@ -269,7 +287,8 @@ implementation
                 end;
             until((input = 'S') OR (input = 'N'));
 
-            capacitacion_actualizada.horas:= horasInt;
+            if (input = 'S') then
+                capacitacion_actualizada.horas:= horasInt;
 
             res_modificar_capacitacion:= ModificarCapacitacion(capacitacion_actualizada, ctx);
 

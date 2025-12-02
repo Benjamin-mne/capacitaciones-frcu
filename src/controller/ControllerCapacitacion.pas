@@ -3,7 +3,7 @@ unit ControllerCapacitacion;
 interface
     uses 
         Capacitacion, Contexto, 
-        AVL, List;
+        AVL, List, Utils;
 
     type 
         CAPACITACION_RES_CONTROLLER = record
@@ -23,6 +23,8 @@ interface
     function ObtenerCapacitaciones(arbol_capacitaciones: NODO_CAPACITACION_NOMBRE): CAPACITACION_RES_CONTROLLER;
     function EliminarCapacitacion(id: string; var ctx: T_CONTEXTO_CAPACITACIONES): CAPACITACION_RES_CONTROLLER;
     function ModificarCapacitacion(capacitacion_actualizada: T_CAPACITACION; var ctx: T_CONTEXTO_CAPACITACIONES): CAPACITACION_RES_CONTROLLER;
+    function ObtenerCapacitacionesPorArea(area: E_AREA_CAPACITACION; var ctx: T_CONTEXTO_CAPACITACIONES): CAPACITACION_RES_CONTROLLER;
+    function ObtenerCapacitacionesEntreDosFechas(fecha_a, fecha_b: string; var ctx: T_CONTEXTO_CAPACITACIONES): CAPACITACION_RES_CONTROLLER;
 
 implementation
     uses DAOCapacitacion, SysUtils;
@@ -216,4 +218,75 @@ implementation
         ModificarCapacitacion:= res;
     end;
 
+    function ObtenerCapacitacionesPorArea(area: E_AREA_CAPACITACION; var ctx: T_CONTEXTO_CAPACITACIONES): CAPACITACION_RES_CONTROLLER;
+    var res: CAPACITACION_RES_CONTROLLER;
+            procedure RecorrerAVL(N: NODO_CAPACITACION_ID; area: E_AREA_CAPACITACION; var L: LISTA_CAPACITACIONES);
+            var 
+                capacitacion: T_CAPACITACION;
+            begin
+                if (N <> nil) then
+                begin
+                    RecorrerAVL(N^.sai, area, L);
+
+                    LeerCapacitacionDesdeArchivo(capacitacion, N^.info.pos_arch);
+
+                    if (capacitacion.area = area) then 
+                        AGREGAR_LISTA_CAPACITACIONES(L, capacitacion);
+
+                    RecorrerAVL(N^.sad, area, L);
+                end;
+            end;
+    begin
+        res:= CrearCapacitacionRes();
+
+        if(ctx.id = nil) then 
+        begin
+            res.error:= true;
+            res.msg:= 'No hay capacitaciones cargadas.';
+            ObtenerCapacitacionesPorArea:= res;
+        end else 
+        begin
+            PRIMERO_LISTA_CAPACITACIONES(res.data);
+            RecorrerAVL(ctx.id, area, res.data);
+            res.msg:= 'Se encontraron ' + IntToStr(res.data.tam) + ' capacitaciones.';
+        end;
+
+        ObtenerCapacitacionesPorArea:= res;
+    end;
+
+    function ObtenerCapacitacionesEntreDosFechas(fecha_a, fecha_b: string; var ctx: T_CONTEXTO_CAPACITACIONES): CAPACITACION_RES_CONTROLLER;
+    var res: CAPACITACION_RES_CONTROLLER;
+            procedure RecorrerAVL(N: NODO_CAPACITACION_ID; fecha_a, fecha_b: string; var L: LISTA_CAPACITACIONES);
+            var 
+                capacitacion: T_CAPACITACION;
+            begin
+                if (N <> nil) then
+                begin
+                    RecorrerAVL(N^.sai, fecha_a, fecha_b, L);
+
+                    LeerCapacitacionDesdeArchivo(capacitacion, N^.info.pos_arch);
+
+                    if FechaMayorIgual(capacitacion.fecha_inicio, fecha_a) and FechaMenorIgual(capacitacion.fecha_fin, fecha_b) then 
+                        AGREGAR_LISTA_CAPACITACIONES(L, capacitacion);
+
+                    RecorrerAVL(N^.sad, fecha_a, fecha_b, L);
+                end;
+            end;
+    begin
+        res:= CrearCapacitacionRes();
+
+        if(ctx.id = nil) then 
+        begin
+            res.error:= true;
+            res.msg:= 'No hay capacitaciones cargadas.';
+            ObtenerCapacitacionesEntreDosFechas:= res;
+        end else 
+        begin
+            PRIMERO_LISTA_CAPACITACIONES(res.data);
+            RecorrerAVL(ctx.id, fecha_a, fecha_b, res.data);
+            res.msg:= 'Se encontraron ' + IntToStr(res.data.tam) + ' capacitaciones.';
+        end;
+
+        ObtenerCapacitacionesEntreDosFechas:= res;
+    end;
 end.
