@@ -1,18 +1,3 @@
-### TODO: 
-```
-Operaciones CRUD: 
-[x] CRUD Capacitaciones. (Contiene Listado de capacitacion ordenado por nombre.)
-[x] CRUD Alumnos.
-[x] CRUD Inscripciones. [x] Generar certificado de cursado o de aprobación de una capacitación
-
-Consultas:
-[x] Listado de capacitaciones de un determinado alumno. (Alumno + capcitaciones)
-[x] Listado de alumnos aprobados de una capacitacion. (Alumnos + capacitacion)
-[x] Distribución (cantidad) de cursos, talleres, seminarios entre dos fechas
-[x] % de capacitaciones por área/departamento
-[_] Generar una opción diferente a las anteriores (libre elección)
-```
-
 # Arquitectura del Sistema
 
 Este documento describe la arquitectura del sistema y la responsabilidad de cada módulo.  
@@ -45,6 +30,8 @@ Cada *unit* gestiona exclusivamente un archivo binario asociado a un modelo.
 ### Units del módulo:
 - **DAOAlumno.pas** opera sobre `alumnos.dat`.
 - **DAOCapacitacion.pas** opera sobre `capacitaciones.dat`.
+- **DAOInscripcion.pas** opera sobre `inscripciones.dat`.
+
 
 Las DAO realizan:
 - Lectura y escritura en archivos.
