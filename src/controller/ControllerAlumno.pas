@@ -60,29 +60,39 @@ implementation
         nodo_dni: T_DATO;
         nodo_nombre: T_DATO;
         res: ALUMNO_RES_CONTROLLER;
+        alumno_buscado: NODO_ALUMNO_DNI;
     begin
         alumno.activo:= true;
 
-        // Escribir en archivo
-        pos:= EscribirAlumnoEnArchivo(alumno);
+        // Buscar en AVL
+        alumno_buscado:= BUSCAR(ctx.dni, IntToStr(alumno.dni));
 
-        // Actualizar Árbol ordenado por dni
-        Str(alumno.dni, nodo_dni.id);
-        nodo_dni.pos_arch:= pos;
-        ctx.dni:= INSERTAR(ctx.dni, nodo_dni);
+        if (alumno_buscado = nil) then 
+        begin
+            // Escribir en archivo
+            pos:= EscribirAlumnoEnArchivo(alumno);
 
-        // Actualizar Árbol ordenado por nombre
-        nodo_nombre.id:= alumno.nombre;
-        nodo_nombre.pos_arch:= pos;
-        ctx.nombre:= INSERTAR(ctx.nombre, nodo_nombre);
+            // Actualizar Árbol ordenado por dni
+            Str(alumno.dni, nodo_dni.id);
+            nodo_dni.pos_arch:= pos;
+            ctx.dni:= INSERTAR(ctx.dni, nodo_dni);
+
+            // Actualizar Árbol ordenado por nombre
+            nodo_nombre.id:= alumno.nombre;
+            nodo_nombre.pos_arch:= pos;
+            ctx.nombre:= INSERTAR(ctx.nombre, nodo_nombre);
 
 
-        // Armar respuesta
-        res:= CrearAlumnoRes();
+            // Armar respuesta
+            res:= CrearAlumnoRes();
 
-        res.msg:= 'Alumno agregado con exito.';
-        AGREGAR_LISTA_ALUMNOS(res.data, alumno);
-
+            res.msg:= 'Alumno agregado con exito.';
+            AGREGAR_LISTA_ALUMNOS(res.data, alumno);
+        end else 
+            begin
+                res.error:= true;
+                res.msg:= 'Ya existe un alumno con ese dni registrado.';
+            end;
         CrearAlumno:= res;
     end;
 

@@ -56,7 +56,11 @@ implementation
             Writeln;
             MostrarAlumno(res.data.cab^.info);
             LiberarAlumnoRes(res.data);
-        end; 
+        end else 
+            begin
+                Clrscr;
+                Writeln(res.msg);
+            end;
     end;
 
     procedure ConsultarAlumno(alumnos: NODO_ALUMNO_DNI);
